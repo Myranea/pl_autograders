@@ -9,7 +9,7 @@ import os
 
 class PrairieLearnImage(TypedDict):
     """
-    How PrairieLearn specifies images to give back from the external grading results
+    How PrairieLearn specifies images to give back from the external grading results. \n
     """
     label: str
     url: str
@@ -18,7 +18,8 @@ class PrairieLearnImage(TypedDict):
 class PrairieLearnTestCaseJsonDictOptional(TypedDict, total=False):
     """
     The optional values for a test case reported back to PrairieLearn in dictionary form
-    that is ready to be processed by the json library
+    that is ready to be processed by the json library.
+
     """
     description: str
     message: str

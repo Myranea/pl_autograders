@@ -13,8 +13,8 @@ from typing import Any, Optional, Type
 import unittest
 import warnings
 
-from .utsg_types import AccessControls, PrairieLearnImage, PrairieLearnTestCaseJsonDict, UTSGTestStatus
-from .utsg_util import are_strs_equal_ignoring_whitespace
+from utsg_types import AccessControls, PrairieLearnImage, PrairieLearnTestCaseJsonDict, UTSGTestStatus
+from utsg_util import are_strs_equal_ignoring_whitespace
 
 
 class UngradableError(Exception):
@@ -29,49 +29,55 @@ class UngradableError(Exception):
 @dataclasses.dataclass
 class UTSGTestCaseInfo:
     """
-    The information about a TestCase to report back to Prairie Learn
+    The information about a ``TestCase`` to report back to PrairieLearn
 
-    Values Describing The Test
-    :var name: The name of the test case.
-      Default: Unnamed Test
-      Inherited by Subtests? Partial. The name of the subtest will be f'{name} subtest {i}' where i is the ith subtest
-      run and i starts at 1.
-    :var description: A string describing what this test case does.
-      Default: None. If not specified, no description for the test is given back to PrairieLearn.
-      Inherited by Subtests? True. Subtests will use the same description as their parent test if not overridden.
-    :var max_points: How many points this test is worth.
-      Default: 1.0
-      Inherited by Subtests? True. max_points for each subtest will be equal to their parent's max_points
-    :var points_lost_on_failure: how many points are lost if this test fails.
-      Default: 0.0
-      Inherited by Subtests? True. points_lost_on_failure for each subtest will be equal to their parent's points_lost_on_failure
+    **Values Describing The Test**
+    
+    :var name: The name of the test case. \n
+      **Default:** ``"Unnamed Test"`` \n
+      **Inherited by Subtests?** Partial. The name of the subtest will be ``f'{name} subtest {i}'`` where ``i`` is the ith subtest
+      run and ``i`` starts at 1.
+    :var description: A string describing what this test case does. \n
+      **Default:** ``None``\n 
+      If not specified, no description for the test is given back to PrairieLearn. \n
+      **Inherited by Subtests?** True. Subtests will use the same description as their parent test if not overridden.
+    :var max_points: How many points this test is worth. \n
+      **Default:** ``1.0`` \n
+      **Inherited by Subtests?** True. ``max_points`` for each subtest will be equal to their parent's ``max_points``
+    :var points_lost_on_failure: how many points are lost if this test fails. \n
+      **Default:** ``0.0`` \n
+      **Inherited by Subtests?** True. ``points_lost_on_failure`` for each subtest will be equal to their parent's ``points_lost_on_failure``
     :var include_in_results: whether or not the results of this test case should be reported back to PrairieLearn.
-    If False the test case is still run but nothing about this test will be used to calculate a student's score
-    or be reported back to PrairieLearn
-      Default: True
-      Inherited by Subtests? False. The most common reason to set this to be True is if a test is just serving as
+      If False the test case is still run but nothing about this test will be used to calculate a student's score
+      or be reported back to PrairieLearn \n
+      **Default:** ``True`` \n
+      **Inherited by Subtests?** False. The most common reason to set this to be ``True`` is if a test is just serving as
       a container for multiple subtests and only the results of the subtests should be reported back
-    :var hidden: whether or not the existence of this test should be revealed to the student. If True nothing about
-    this test is reported back to PrarieLearn, and therefore, the student but unlike setting include_in_results = False
-    the points earned on this test will be used to calculate a student's score and the student will be informed of
-    the number of hidden tests they passed, how many hidden tests there are, and how many points from the hidden
-    test they earned
-      Default: False
-      Inherited by Subtests? True. hidden for each subtest will be equal to their parent's hidden
+    :var hidden: whether or not the existence of this test should be revealed to the student. If ``True`` nothing about
+      this test is reported back to PrarieLearn, and therefore, the student but unlike setting ``include_in_results = False``
+      the points earned on this test will be used to calculate a student's score and the student will be informed of
+      the number of hidden tests they passed, how many hidden tests there are, and how many points from the hidden
+      test they earned \n
+      **Default:** ``False`` \n
+      Inherited by Subtests? True. ``hidden`` for each subtest will be equal to their parent's ``hidden``
 
-    Values generated during a test
-    :var points: How many points a student earned on the test.
-      Default: None. If not set explicitly during the test will be max_points if the test passes and
-      -points_lost_on_failure if the test fails. If it is set during the test, it will be whatever value was set
-      Inherited by Subtests? False
-    :var msg: A string containing any additional information you want to show the student
-        Default: None. If not specified, no description for the test is given back to PrairieLearn.
-        Inherited by Subtests?: False
-    :var output: Any output produced by running the students code that you wish to show them
-        Default: None. If not specified, no output for the test is given back to PrairieLearn.
-        Inherited by Subtests?: False
-    :var images: Any images produced during the test you wish to display to the student
-      Default: An empty list. If not specified, no images for the test are given back to PrairieLearn.
+    **Values generated during a test**
+    
+    :var points: How many points a student earned on the test. \n
+      **Default:** ``None`` \n
+      If not set explicitly during the test will be ``max_points`` if the test passes and
+      ``points_lost_on_failure`` if the test fails. If it is set during the test, it will be whatever value was set \n
+      **Inherited by Subtests?** False
+    :var msg: A string containing any additional information you want to show the student \n
+        **Default:** ``None`` \n
+        If not specified, no description for the test is given back to PrairieLearn. \n
+        **Inherited by Subtests?:** False
+    :var output: Any output produced by running the students code that you wish to show them \n
+        **Default:** ``None`` \n
+        If not specified, no output for the test is given back to PrairieLearn. \n
+        **Inherited by Subtests?:** False
+    :var images: Any images produced during the test you wish to display to the student \n
+      **Default:** An empty list. If not specified, no images for the test are given back to PrairieLearn.
     """
 
     # descriptive information about the test
@@ -91,9 +97,8 @@ class UTSGTestCaseInfo:
 
     def as_prairielearn_json_dict(self) -> PrairieLearnTestCaseJsonDict:
         """
-        Create a dictionary that can be used in the Prairie Learn results JSON for a test case
+        Create a dictionary that can be used in the Prairie Learn results JSON for a test case \n
         Discards any of the optional parameters that aren't set
-        :return:
         """
         return {attr_name: attr_value for attr_name, attr_value in dataclasses.asdict(self).items() if
                 attr_name in PrairieLearnTestCaseJsonDict.__required_keys__ or
@@ -119,8 +124,8 @@ class UTSGTestCase(unittest.TestCase):
                  max_points: float = 1.0, points_lost_on_failure: float = 0.0,
                  include_in_results: bool = True, hidden: bool = False):
         """
-        See UTSGTestCaseInfo for the meaning of each parameter
-        :param methodName: The name of the test case. The same as name in UTSGTestCaseInfo
+        See :ref:`UTSGTestCaseInfo <utsgTestCaseInfo>` for the meaning of each parameter \n
+        :param methodName: The name of the test case. The same as name in :ref:`UTSGTestCaseInfo <utsgTestCaseInfo>`
         :param description: A string describing what this test case does
         :param max_points: How many points this test is worth
         :param points_lost_on_failure: how many points are lost if this test fails
@@ -185,25 +190,26 @@ class UTSGTestCase(unittest.TestCase):
                            **params: Any) -> AbstractContextManager['UTSGSubTest']:
         """
         Create an independent test within in this test whose results will be reported back to PrairieLearn. The subtests
-        created behave nearly identically to those created by unittest.subTest except that if an Exception other than
-        an AssertionError is raised it will end the entire testing process and mark the submission as Ungradable
-        :param name: The name of this subtest. If not specified it will be f'{ParentTest.name} subtest {i}' where
-        i starts at 1
+        created behave nearly identically to those created by `unittest.subTest <https://docs.python.org/3/library/unittest.html#unittest.TestCase.subTest>`_ except that if an ``Exception`` other than
+        an `AssertionError <https://docs.python.org/3/library/exceptions.html#AssertionError>`_ is raised it will end the entire testing process and mark the submission as ``Ungradable`` \n
+        :param name: The name of this subtest. If not specified it will be ``f'{ParentTest.name} subtest {i}'`` where
+          ``i`` starts at ``1`` 
         :param description: The description of this subtest. If not specified it will be the parent test's description
         :param max_points: The maximum number of points available for this subtest.
-          If not specified it will be the parent test's max_points.
+          If not specified it will be the parent test's ``max_points``.
         :param points_lost_on_failure: The number of points lost if this subtest fails.
-          If not specified it will be the parent test's points_lost_on_failure
-        parent's max_points.
+          If not specified it will be the parent test's ``points_lost_on_failure``
         :param include_in_results: Whether or not to include this test case's results when calculating the
-          final grade and reporting back to PrairieLearn. If not specified it will default to True
+          final grade and reporting back to PrairieLearn. If not specified it will default to ``True``
         :param hidden: Whether or not to hide this subtests results from the student.
-           If not specified it will be the parent test's hidden
+          If not specified it will be the parent test's ``hidden``
         :param include_params_in_description: If true any additional parameter's will be appended to the end of the
           subtest's description
-        :param params: Any additional values to display. The same as unittest.subTest
-        :return: a UTSGSubtest. Like UTSGTest it has an utsg_test_case_info member that you can access to set/modify
+        :param params: Any additional values to display. The same as `unittest.subTest <https://docs.python.org/3/library/unittest.html#unittest.TestCase.subTest>`_
+        :return: a :ref:`UTSGSubtest <utsgSubTest>`. Like ``UTSGTest`` it has an :py:func:`utsg_test_case_info <utsg_testcase.UTSGSubTest.__init__>` member that you can access to set/modify
           the values that will be reported back to PrairieLearn
+          
+        .. note:: TODO ask about UTSGTest, add reference to AssertionError
         """
 
         subtest_test_case_info = UTSGTestCaseInfo(
@@ -231,12 +237,12 @@ class UTSGTestCase(unittest.TestCase):
     @staticmethod
     def run_program(*args, **kwargs) -> subprocess.CompletedProcess:
         """
-        Does subprocess.run(*args, **kwargs) but captures any errors raised and transforms them into
-        UngradableError. This is useful for when you need to run a program as the instructor and it must work
+        Does `subprocess.run(*args, **kwargs) <https://docs.python.org/3/library/subprocess.html#subprocess.run>`_ but captures any errors raised and transforms them into
+        UngradableError. This is useful for when you need to run a program as the instructor and it must work \n
         :param args: positional args to forward to subprocess.run
         :param kwargs: keyword arguments to forward to subprocess.run
         :return: the result of running the program
-        :raises: UngradableError if anything goes wrong in running the subprocess
+        :raises: ``UngradableError`` if anything goes wrong in running the subprocess
         """
         try:
             return subprocess.run(*args, **kwargs)
@@ -251,11 +257,11 @@ class UTSGTestCase(unittest.TestCase):
     def run_as_student(*subprocess_run_pos_args, files_accessible: Optional[AccessControls] = None,
                        **subprocess_run_keyword_args) -> subprocess.CompletedProcess:
         """
-        Run the program as a student
-        :param subprocess_run_pos_args: positional arguments to forward to subprocess.run
+        Run the program as a student \n
+        :param subprocess_run_pos_args: positional arguments to forward to `subprocess.run <https://docs.python.org/3/library/subprocess.html#subprocess.run>`_
         :param files_accessible: Additional files and directories accessible to the student. By default
-        students have access to everything under cls.student (/grade/student)
-        :param subprocess_run_keyword_args: keyword arguments to forward to subprocess.run
+          students have access to everything under ``cls.student`` (/grade/student)
+        :param subprocess_run_keyword_args: keyword arguments to forward to `subprocess.run <https://docs.python.org/3/library/subprocess.html#subprocess.run>`_
         :return: the completed results
         """
         if files_accessible is not None:
@@ -277,25 +283,25 @@ class UTSGTestCase(unittest.TestCase):
                                   files_accessible: Optional[AccessControls] = None,
                                   **subprocess_run_keyword_args) -> subprocess.CompletedProcess:
         """
-        Do subprocess.run(**subprocess_run_keyword_args) as the student user,
+        Do `subprocess.run(**subprocess_run_keyword_args) <https://docs.python.org/3/library/subprocess.html#subprocess.run>`_ as the student user,
         checking the results against the expected values. Expected values are only checked if
-        test_info is supplied and the results of the test are then stored there.
-        If test_info is supplied and a mismatch in any of the expected vs produced values occurs,
+        ``test_info`` is supplied and the results of the test are then stored there.
+        If ``test_info`` is supplied and a mismatch in any of the expected vs produced values occurs,
         the test is marked as a failure.
 
-        :param these_exceptions_makes_ungradable: a tuple of Exception types that if
-        they occur while running the students program should mark the submission as ungradable
-        :param test_info: The UTSGTCaseInfo to store the results of the test in. Expected values are only checked
-        if this is provided. If provided, will also mark the test as failed if a mismatch occurs between any of the
-        expected values and the values produced from running the student's code
+        :param these_exceptions_makes_ungradable: a tuple of ``Exception`` types that if
+          they occur while running the students program should mark the submission as ungradable
+        :param test_info: The :ref:`UTSGTestCaseInfo <utsgTestCaseInfo>` to store the results of the test in. Expected values are only checked
+          if this is provided. If provided, will also mark the test as failed if a mismatch occurs between any of the
+          expected values and the values produced from running the student's code
         :param expected_output: What the expected output should be. If not given, it won't be checked
         :param expected_err: What the expected error output should be. If not given, it won't be checked
         :param expected_return_code: What the expected return code should be. If not given it won't be checked
         :param enforce_whitespace: Whether whitespace should be checked or not
         :param files_accessible: What files and directories the student should have access to while the test is running.
-        By default, they only have access to /grade/student and what is in it
-        :param subprocess_run__keyword_args: values to pass to subprocess.run
-        :return: The CompletedProcess returned by doing subprocess.run(**subprocess_run_args)
+          By default, they only have access to /grade/student and what is in it
+        :param subprocess_run__keyword_args: values to pass to `subprocess.run <https://docs.python.org/3/library/subprocess.html#subprocess.run>`_
+        :return: The CompletedProcess returned by doing `subprocess.run(**subprocess_run_args) <https://docs.python.org/3/library/subprocess.html#subprocess.run>`_
         """
         try:
             run_results = self.run_as_student(**subprocess_run_keyword_args, files_accessible=files_accessible)
@@ -398,7 +404,7 @@ class UTSGTestCase(unittest.TestCase):
                                                            AccessControls] = None) -> None:
         """
         Run the instructor's program and the student's program on the same set of input and then check the student's
-        and then check if their outputs are the same. If so the test case passes, otherwise it fails
+        and then check if their outputs are the same. If so the test case passes, otherwise it fails \n
         :param test_info: where to store the results of the test
         :param instructor_args: the command to run the instructor's program along with any command line arguments
         :param student_args: the command to run the student's program along with any command line arguments
@@ -412,7 +418,7 @@ class UTSGTestCase(unittest.TestCase):
         :param check_err: whether or not to check the stderr of the programs
         :param these_exceptions_makes_ungradable: a tuple of exceptions that if raised should mark the submission as ungradable
         :param files_accessible_to_student: files and directories to the student. By default they only have acess to
-        what is in /grade/student
+          what is in /grade/student
         :return: None
         """
         if instructor_working_directory is None:
@@ -443,7 +449,7 @@ class UTSGTestCase(unittest.TestCase):
     def _describe_how_program_was_run(run_args: list[str], stdin: Optional[str] = None, prepend: str = '',
                                       append: str = '') -> str:
         """
-        Helps form the message to be shown to the students on completion of the test
+        Helps form the message to be shown to the students on completion of the test \n
         :param run_args: the command used to run the students code
         :param stdin: the standard input provided to the student
         :param prepend: any message to prepend to the output
@@ -517,6 +523,7 @@ class UTSGSubTest(AbstractContextManager):
         :param parent_test_case: The test case this subtest lives inside of.
         :param utsg_test_case_info: The test case info for this subtest
         :param kwargs: Additional arguments to pass to unittest.subTest
+        .. note:: Make changes to testCaseUsage.rst that refers to this method upon changes
         """
         self.utsg_test_case_info = utsg_test_case_info
         self.parent_test_case, self.subtest_context_manager = self._common_init(parent_test_case, **kwargs)
@@ -528,7 +535,7 @@ class UTSGSubTest(AbstractContextManager):
         """
 
         :param parent_test_case: The test case this subtest lives inside of.
-        See UTSGTestCase for the meaning of these parameters
+          See UTSGTestCase for the meaning of these parameters
         :param name:
         :param description:
         :param max_points:
@@ -537,6 +544,7 @@ class UTSGSubTest(AbstractContextManager):
         :param hidden:
 
         :param kwargs: Additional arguments to pass to unittest.subTest
+        .. note:: Make changes to testCaseUsage.rst that refers to this method upon changes
         """
         self.utsg_test_case_info = UTSGTestCaseInfo(name, description,
                                                     max_points, points_lost_on_failure,
@@ -547,17 +555,17 @@ class UTSGSubTest(AbstractContextManager):
     def _common_init(parent_test_case: UTSGTestCase, **kwargs) -> tuple[UTSGTestCase, AbstractContextManager]:
         """
         The parts of init that are common to all versions of it. Generates the values for
-        parent_test_case, subtest_context_manager,and test_status
+        ``parent_test_case``, ``subtest_context_manager``, and ``test_status`` \n
         :param parent_test_case: the parent test that the subtest lives inside
-        :param kwargs: Additional arguments to pass to unittest.subTest
-        :return: a tuple with (parent_test_case, subtest_context_manager)
+        :param kwargs: Additional arguments to pass to `unittest.subTest <https://docs.python.org/3/library/unittest.html#unittest.TestCase.subTest>`_
+        :return: a tuple with ``(parent_test_case, subtest_context_manager)``
         """
         return parent_test_case, parent_test_case.subTest(**kwargs)
 
     def __enter__(self) -> "UTSGSubTest":
         """
-        This is the code run when the with statement is entered. Does the same thing as unittest.subTest
-        but also gives back the subtest so you can modify the values in subtest.utsg_test_case_info
+        This is the code run when the with statement is entered. Does the same thing as `unittest.subTest <https://docs.python.org/3/library/unittest.html#unittest.TestCase.subTest>`_
+        but also gives back the subtest so you can modify the values in :py:func:`subtest.utsg_test_case_info <utsg_testcase.UTSGSubTest.__init__>` \n
         :return: The subtest
         """
         super().__enter__()

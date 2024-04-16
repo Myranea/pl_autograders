@@ -1,7 +1,7 @@
 import dataclasses
 import functools
 from typing import Any, Callable, Concatenate, ParamSpec
-from .utsg_testcase import UTSGTestCase, UTSGTestCaseInfo
+from utsg_testcase import UTSGTestCase, UTSGTestCaseInfo
 
 P = ParamSpec('P')
 UTSGTestCaseFun = Callable[Concatenate[UTSGTestCase, P], None]
@@ -35,20 +35,20 @@ UTSGTestCaseFun = Callable[Concatenate[UTSGTestCase, P], None]
 
 class UTSGDecoratorFactory:
     """
-    Create a decorator that can set the specified member of a UTSGTestCaseInfo to the specified value
+    Create a decorator that can set the specified member of a :ref:`UTSGTestCaseInfo <utsgTestCaseInfo>` to the specified value
     """
 
     def __init__(self, member_name: str, member_value: Any):
         """
-        :param member_name: the name of the member in UTSGTestCaseInfo to modify
-        :param member_value: The value to set UTSGTestCaseInfo.member_name to
+        :param member_name: the name of the member in :ref:`UTSGTestCaseInfo <utsgTestCaseInfo>` to modify
+        :param member_value: The value to set :ref:`UTSGTestCaseInfo <utsgTestCaseInfo>`.member_name to
         """
         self.member_name = member_name
         self.member_value = member_value
 
     def __call__(self, test_fun: UTSGTestCaseFun) -> UTSGTestCaseFun:
         """
-        Create a wrapper function for test_fun that sets the test's utsg_test_case_info.member_name = member_value
+        Create a wrapper function for test_fun that sets the test's :ref:`utsg_test_case_info <utsgTestCaseInfo>` ``.member_name = member_value`` \n
         :param test_fun: the test function to wrap
         :return: the wrapped function
         """
