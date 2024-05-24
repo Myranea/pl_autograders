@@ -28,7 +28,7 @@ Instance Methods
 
 .. autofunction:: utsg_testcase.UTSGTestCase.__init__
 
-.. note:: TODO: Add description for setUpClass classmethod
+.. autofunction:: utsg_testcase.UTSGTestCase.setUpClass
 
 .. autofunction:: utsg_testcase.UTSGTestCase.add_graded_subTest
 

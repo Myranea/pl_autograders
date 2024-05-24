@@ -81,6 +81,8 @@ class UTSGTestCaseInfo:
     """
 
     # descriptive information about the test
+    # TODO: max points, points on failure, points, hidden are required.
+    # TODO: include_in_results may be deprecated
     name: str = 'Unnamed Test'
     description: Optional[str] = None
     max_points: float = 1.0
@@ -89,6 +91,7 @@ class UTSGTestCaseInfo:
     hidden: bool = False
 
     # generated during running the test
+    # TODO: These things should be organized under an attribute called info or something
     points: Optional[float] = dataclasses.field(default=None, init=False)
     message: Optional[str] = dataclasses.field(default=None, init=False)
     output: Optional[str] = dataclasses.field(default=None, init=False)
@@ -106,8 +109,29 @@ class UTSGTestCaseInfo:
 
 
 class UTSGTestCase(unittest.TestCase):
+    """
+    Logical test unit of the grader, inherits from `unittest.TestCase <https://docs.python.org/3/library/unittest.html#unittest.TestCase>`_ \n
+    **Values Generated During a Subtest**
+
+    :var utsg_score_floor: Minimum score the subtest returns. \n**Default:** ``0.0``
+    :var utsg_score_celing: Maximum score the subtest returns. \n**Default:** ``1.0``
+    :var message: A string containing additional information you want to show to the student. \n**Default:** ``None``
+    :var output: Any output produced by running the students code that you wish to show them \n
+        **Default:** ``None`` \n
+    :var images: Any images produced during the test you wish to display to the student \n
+      **Default:** An empty list. If not specified, no images for the test are given back to PrairieLearn.\n
+
+    **Directory Paths**
+    The default locations for where things are currently in PrairieLearn
+    :var grade_dir: defaults to PL's path to the grade directory, otherwise defaults to /grade
+    :var data_dir:
+    :var data: Dictionary representing the `data.json <https://prairielearn.readthedocs.io/en/latest/question/#question-data-storage>`_ for PrairieLearn. Defaults to empty dictionary. 
+    setUpClass attempts to assign this value to the `data.json <https://prairielearn.readthedocs.io/en/latest/question/#question-data-storage>`_ file.
+    .. note:: TODO please finish this
+    """
     utsg_score_floor = 0.0
     utsg_score_ceiling = 1.0
+    # TODO: Combine these under an info attribute
     message: Optional[str] = None
     output: Optional[str] = None
     images: list[str] = []
@@ -115,6 +139,13 @@ class UTSGTestCase(unittest.TestCase):
 
     # the default locations for where things are currently at in Prarie Learn
     grade_dir = pathlib.Path('/grade' if 'GRADE_DIR' not in os.environ else os.environ['GRADE_DIR'])
+    os.mkdir('./workingGradeDirectory')
+    plDirs = os.listdir(grade_dir)
+    for f in plDirs:
+        src_path = os.path.join(grade_dir, f)
+        dst_path = os.path.join('./workingGradeDirectory', f)
+        os.rename(src_path, dst_path)
+    grade_dir = pathlib.Path('./workingGradeDirectory')
     data_dir = grade_dir / 'data'
     results_dir = grade_dir / 'results'
     student_dir = grade_dir / 'student'
@@ -137,13 +168,27 @@ class UTSGTestCase(unittest.TestCase):
                                                     max_points, points_lost_on_failure,
                                                     include_in_results, hidden)
         self.utsg_subtests: list[UTSGSubTest] = []
-
+    def __del__(self):
+        plDirs = os.listdir(self.grade_dir)
+        for f in plDirs:
+            src_path = os.path.join('./workingGradeDirectory', f)
+            dest_path = os.path.join(pathlib.Path('/grade' if 'GRADE_DIR' not in os.environ else os.environ['GRADE_DIR']), f)
+            os.rename(src_path, dest_path)
+        os.rmdir('./workingGradeDirectory')
     @classmethod
     def setUpClass(cls) -> None:
+        """
+        `classmethod <https://docs.python.org/3/library/functions.html#classmethod>`_ called before any test cases are ran. Resets the `UTSGTestCase.utsg_score_floor` to ``0.0`` and 
+        ``UTSGTestCase.utsg_score_ceiling`` to ``1.0``, sets ``UTSGTestCase.message`` and ``UTSGTestCase.output`` to ``None``.
+        Attempts to assign ``UTSGTestCase.data`` with the path to the PL `data.json <https://prairielearn.readthedocs.io/en/latest/question/#question-data-storage>`_ file. Removes student files' (including files created during the test)
+        permissions for everything within the grade and results directory, but assigns student files' full permissions
+        for files inside the student directory.
+        """
         super().setUpClass()
         # (re)set back to defaults
         cls.utsg_score_floor = 0.0
         cls.utsg_score_ceiling = 1.0
+        # TODO: Should message and output be under one attribute or should they stay separate?
         cls.message = None
         cls.output = None
         cls.data = {}
@@ -206,10 +251,8 @@ class UTSGTestCase(unittest.TestCase):
         :param include_params_in_description: If true any additional parameter's will be appended to the end of the
           subtest's description
         :param params: Any additional values to display. The same as `unittest.subTest <https://docs.python.org/3/library/unittest.html#unittest.TestCase.subTest>`_
-        :return: a :ref:`UTSGSubtest <utsgSubTest>`. Like ``UTSGTest`` it has an :py:func:`utsg_test_case_info <utsg_testcase.UTSGSubTest.__init__>` member that you can access to set/modify
+        :return: a :ref:`UTSGSubtest <utsgSubTest>`. Like :ref:`UTSGSubTest <utsgSubTest>` it has an :py:func:`utsg_test_case_info <utsg_testcase.UTSGSubTest.__init__>` member that you can access to set/modify
           the values that will be reported back to PrairieLearn
-          
-        .. note:: TODO ask about UTSGTest, add reference to AssertionError
         """
 
         subtest_test_case_info = UTSGTestCaseInfo(
@@ -596,3 +639,6 @@ class UTSGSubTest(AbstractContextManager):
             suppress_exception = False
 
         return suppress_exception
+
+# if __name__ == '__main__':
+#     test1 = UTSGTestCase();

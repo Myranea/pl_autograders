@@ -71,7 +71,8 @@ class UTSGTestResult(unittest.TestResult):
             self.utsg_result_location = result_location
         else:
             self.utsg_result_location = UTSGTestCase.results_dir / 'results.json'
-
+    # TODO: Refactor these properties. Maybe keep the necessary ones but add a method called info or something that handles
+    # other information about the test.
     @property
     def utsg_score_floor(self) -> float:
         """
@@ -189,6 +190,7 @@ class UTSGTestResult(unittest.TestResult):
         When starting a new set of tests clear out the results of old test runs
         :return:
         """
+        # NOTE: utsg_results is how the json is created. 
         super().startTestRun()
         self.utsg_results = {
             'gradable': True,
@@ -229,6 +231,7 @@ class UTSGTestResult(unittest.TestResult):
                                                       visible_results=visible_results,
                                                       total_results=total_results,
                                                       score=self.score * 100.0)
+        # TODO: Is this line necessary?
         self.message = final_results + self.message if self.message is not None else ''
 
         with open(self.utsg_result_location, 'w') as result_json:
@@ -242,7 +245,7 @@ class UTSGTestResult(unittest.TestResult):
 
     def stopTest(self, test: UTSGTestCase) -> None:
         super().stopTest(test)
-
+        # TODO: Change the behavior where stopTest checks for the image, message, and output attributes
         # if there are any top level attributes in the test class, copy them over
         if test.images:
             self.images = test.images
@@ -338,6 +341,7 @@ class UTSGTestResult(unittest.TestResult):
         self._log_failure(test.utsg_test_case_info)
 
     def _log_failure(self, test: UTSGTestCaseInfo) -> None:
+        # TODO: Refactor such that the message is created without checking test.message
         test._status = UTSGTestStatus.FAILED
         if test.points is None:
             test.points = -test.points_lost_on_failure
@@ -351,6 +355,7 @@ class UTSGTestResult(unittest.TestResult):
         self._log_success(test.utsg_test_case_info)
 
     def _log_success(self, test: UTSGTestCaseInfo) -> None:
+        # TODO: Ask Butner if the Passed message is necessary here.
         test._status = UTSGTestStatus.PASSED
         if test.points is None:
             test.points = test.max_points
@@ -363,6 +368,7 @@ class UTSGTestResult(unittest.TestResult):
         super().addExpectedFailure(test, err)
 
     def addUnexpectedSuccess(self, test: UTSGTestCase) -> None:
+        # TODO: possibly need to change how message is assigned to UTSGTestResult.
         self.gradable = False
         self.message = f'{test.utsg_test_case_info.name} passed when it was marked as expecting to fail.'
         super().addUnexpectedSuccess(test)
