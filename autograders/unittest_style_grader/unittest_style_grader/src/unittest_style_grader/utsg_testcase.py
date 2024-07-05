@@ -12,6 +12,7 @@ from types import TracebackType
 from typing import Any, Optional, Type
 import unittest
 import warnings
+import tempfile
 
 from utsg_types import AccessControls, PrairieLearnImage, PrairieLearnTestCaseJsonDict, UTSGTestStatus
 from utsg_util import are_strs_equal_ignoring_whitespace
@@ -139,13 +140,14 @@ class UTSGTestCase(unittest.TestCase):
 
     # the default locations for where things are currently at in Prarie Learn
     grade_dir = pathlib.Path('/grade' if 'GRADE_DIR' not in os.environ else os.environ['GRADE_DIR'])
-    os.mkdir('./workingGradeDirectory')
+    temp_dir = tempfile.TemporaryDirectory()
+    print(temp_dir)
     plDirs = os.listdir(grade_dir)
     for f in plDirs:
         src_path = os.path.join(grade_dir, f)
-        dst_path = os.path.join('./workingGradeDirectory', f)
+        dst_path = os.path.join(temp_dir.name, f)
         os.rename(src_path, dst_path)
-    grade_dir = pathlib.Path('./workingGradeDirectory')
+    grade_dir = pathlib.Path(temp_dir.name)
     data_dir = grade_dir / 'data'
     results_dir = grade_dir / 'results'
     student_dir = grade_dir / 'student'
@@ -171,10 +173,10 @@ class UTSGTestCase(unittest.TestCase):
     def __del__(self):
         plDirs = os.listdir(self.grade_dir)
         for f in plDirs:
-            src_path = os.path.join('./workingGradeDirectory', f)
+            src_path = os.path.join(self.temp_dir.name, f)
             dest_path = os.path.join(pathlib.Path('/grade' if 'GRADE_DIR' not in os.environ else os.environ['GRADE_DIR']), f)
             os.rename(src_path, dest_path)
-        os.rmdir('./workingGradeDirectory')
+        os.rmdir(self.temp_dir.name)
     @classmethod
     def setUpClass(cls) -> None:
         """
@@ -210,6 +212,7 @@ class UTSGTestCase(unittest.TestCase):
         #                       # '-Rm', 'default:u:sbuser:-', str(cls.results_dir)
         #                       ],
         #                 )
+        #sbuser refers to student
         cls.run_program(args=['chmod', '-R', '711', str(cls.grade_dir), str(cls.results_dir)])
 
         # except for what is in the student directory where they have full permissions
@@ -640,5 +643,5 @@ class UTSGSubTest(AbstractContextManager):
 
         return suppress_exception
 
-# if __name__ == '__main__':
-#     test1 = UTSGTestCase();
+if __name__ == '__main__':
+    test1 = UTSGTestCase();
