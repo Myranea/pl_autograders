@@ -140,18 +140,28 @@ class UTSGTestCase(unittest.TestCase):
 
     # the default locations for where things are currently at in Prarie Learn
     grade_dir = pathlib.Path('/grade' if 'GRADE_DIR' not in os.environ else os.environ['GRADE_DIR'])
-    temp_dir = tempfile.TemporaryDirectory()
-    print(temp_dir)
-    plDirs = os.listdir(grade_dir)
-    for f in plDirs:
-        src_path = os.path.join(grade_dir, f)
-        dst_path = os.path.join(temp_dir.name, f)
-        os.rename(src_path, dst_path)
-    grade_dir = pathlib.Path(temp_dir.name)
     data_dir = grade_dir / 'data'
     results_dir = grade_dir / 'results'
     student_dir = grade_dir / 'student'
     tests_dir = grade_dir / 'tests'
+    
+    @classmethod
+    def grade_dir_setter(cls, new_grade_dir : pathlib.PurePath):
+        try:
+            cls.grade_dir = new_grade_dir
+            cls.data_dir = cls.grade_dir / 'data'
+            cls.results_dir = cls.grade_dir / 'results'
+            cls.student_dir = cls.grade_dir / 'student'
+            cls.tests_dir = cls.grade_dir / 'tests'
+        except TypeError as invalidDirType:
+            print(invalidDirType)
+        except FileNotFoundError as dirNoExist:
+            print(dirNoExist)
+        except NotADirectoryError as invalidDir:
+            print(invalidDir)
+        finally:
+            return
+
 
     def __init__(self, methodName: str = 'runTest', description: Optional[str] = None,
                  max_points: float = 1.0, points_lost_on_failure: float = 0.0,
@@ -170,13 +180,7 @@ class UTSGTestCase(unittest.TestCase):
                                                     max_points, points_lost_on_failure,
                                                     include_in_results, hidden)
         self.utsg_subtests: list[UTSGSubTest] = []
-    def __del__(self):
-        plDirs = os.listdir(self.grade_dir)
-        for f in plDirs:
-            src_path = os.path.join(self.temp_dir.name, f)
-            dest_path = os.path.join(pathlib.Path('/grade' if 'GRADE_DIR' not in os.environ else os.environ['GRADE_DIR']), f)
-            os.rename(src_path, dest_path)
-        os.rmdir(self.temp_dir.name)
+        self.extra_info = dict()
     @classmethod
     def setUpClass(cls) -> None:
         """
@@ -643,5 +647,5 @@ class UTSGSubTest(AbstractContextManager):
 
         return suppress_exception
 
-if __name__ == '__main__':
-    test1 = UTSGTestCase();
+# if __name__ == '__main__':
+#     test1 = UTSGTestCase();
