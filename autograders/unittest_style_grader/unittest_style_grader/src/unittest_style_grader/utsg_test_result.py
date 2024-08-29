@@ -170,6 +170,16 @@ class UTSGTestResult(unittest.TestResult):
     @recorded_tests.setter
     def recorded_tests(self, new_value: list) -> None:
         self.utsg_results['tests'] = new_value
+    
+    @property
+    def extra_info(self) -> dict():
+        if 'extra_info' not in self.utsg_results:
+            self.utsg_results['extra_info'] = {}
+        return self.utsg_results['extra_info']
+    
+    @extra_info.setter
+    def extra_info(self, new_value: dict) -> None:
+        self.utsg_result['extra_info'] = new_value
 
     def _log_test_result(self, test: UTSGTestCaseInfo) -> None:
         """
@@ -253,6 +263,8 @@ class UTSGTestResult(unittest.TestResult):
             self.message = test.message
         if test.output:
             self.output = test.output
+        if test.extra_info:
+            self.extra_info = test.extra_info
 
         for utsg_subtest in test.utsg_subtests:
             if utsg_subtest.utsg_test_case_info._status == UTSGTestStatus.CRASHED:

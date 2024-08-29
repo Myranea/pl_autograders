@@ -1,7 +1,7 @@
 import dataclasses
 import functools
 from typing import Any, Callable, Concatenate, ParamSpec
-from utsg_testcase import UTSGTestCase, UTSGTestCaseInfo
+from .utsg_testcase import UTSGTestCase, UTSGTestCaseInfo
 
 P = ParamSpec('P')
 UTSGTestCaseFun = Callable[Concatenate[UTSGTestCase, P], None]

@@ -14,8 +14,8 @@ import unittest
 import warnings
 import tempfile
 
-from utsg_types import AccessControls, PrairieLearnImage, PrairieLearnTestCaseJsonDict, UTSGTestStatus
-from utsg_util import are_strs_equal_ignoring_whitespace
+from .utsg_types import AccessControls, PrairieLearnImage, PrairieLearnTestCaseJsonDict, UTSGTestStatus
+from .utsg_util import are_strs_equal_ignoring_whitespace
 
 
 class UngradableError(Exception):
